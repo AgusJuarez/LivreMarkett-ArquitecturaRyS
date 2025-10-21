@@ -1,0 +1,111 @@
+@startuml workflow-livre-markket-monolitic-secuencial
+|web|
+|#AntiqueWhite|compras|
+|#AntiqueWhite|infracciones|
+|#AntiqueWhite|envios|
+|#AntiqueWhite|pagos|
+|#AntiqueWhite|publicaciones|
+|web|
+start
+:Seleccionar Producto;
+->/seleccionarProducto;
+|compras|
+:Nuevo pedido;
+fork
+:Solicitar Forma de Entrega;
+->/solicitarFormaEntrega;
+|web|
+:Seleccionar Forma de Entrega;
+->/formaEntregaColocada;
+|compras|
+:Forma de Entrega Seleccionada;
+->/calcularCostoEnvio;
+|envios|
+if (Despacho?) then (Envío Currier)
+:Calcular Envío;
+else (retira)
+endif
+fork again
+|compras|
+:Solicitar Medio de Pago;
+->/solicitarFormaPago;
+|web|
+:Seleccionar Forma de Pago;
+->/informarPagoSeleccionado;
+|compras|
+:Forma de Pago Seleccionada;
+fork again
+->/reservarProducto;
+|publicaciones|
+:Reservar Producto;
+->/informarReservarProducto;
+fork again
+->/detectarInfracciones;
+|infracciones|
+:Detectar Infracciones;
+->/respuestaDetectarInfraccion;
+|compras|
+end fork
+|infracciones|
+if (Existe Infracción) then (si)
+fork
+->/informarInfraccionDetectada;
+|compras|
+:Informar Infraccion;
+:Cancelar Pedido;
+end
+fork again
+|infracciones|
+:Informar Infracción;
+end
+fork again
+->/cancelarReserva;
+|publicaciones|
+:Cancelar Reserva producto;
+end
+|infracciones|
+end fork
+->/informarInfraccionDetectada;
+|web|
+:Infraccion informada;
+end
+|compras|
+else (no)
+endif
+->/pagarProducto;
+|pagos|
+:Autorizar Pago;
+if (Pago) then (rechazado)
+fork
+->/informarPagoRechazado;
+|compras|
+:Cancelar Compra;
+end
+fork again
+->/informarPagoRechazado;
+|publicaciones|
+:Cancelar Reserva producto;
+end
+fork again
+->/informarPagoRechazado;
+|web|
+:Informar de Pago Rechazado;
+end
+|pagos|
+end fork
+|compras|
+else (autorizado)
+endif
+->/enviarProducto;
+|envios|
+:Enviar Producto;
+:Compra confirmada y en proceso de envío;
+->/confirmarCompra;
+|compras|
+:Enviar producto;
+:Confirmar Compra;
+->/confirmarCompra;
+|web|
+:Informar sobre Compra confirmada;
+end 
+@enduml

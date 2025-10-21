@@ -1,0 +1,18 @@
+# Arquitectura de Redes y Servicios
+# FI-UNPSJB-PM
+#
+# Imagen para el desarrollo del servidor de node de compras
+# Destinada para utilizar en el desarrollo del trabajo de laboratorio.
+FROM node:alpine
+
+# Establecer la variable para usar tu certificado
+ENV NODE_EXTRA_CA_CERTS=/home/compras/wso2carbon.cer
+
+# Establece el directorio de trabajo
+WORKDIR /home/compras
+
+# Establece la variable de entorno para definir el prompt de la terminal
+ENV PS1="[compras:\W]\$ "
+
+# Por defecto ejecuta el comando bash
+CMD [ "bash" ]

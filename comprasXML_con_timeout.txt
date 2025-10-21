@@ -1,0 +1,535 @@
+<?xml version="1.0" encoding="UTF-8"?><proxy xmlns="http://ws.apache.org/ns/synapse" name="compras" startOnLoad="true" statistics="disable" trace="enable" transports="http,https">
+    <target>
+        <inSequence>
+            <log level="custom">
+                <property name="INFO" value="Iniciando proceso de compra secuencial"/>
+            </log>
+            <property expression="json-eval($.compra)" name="compra" scope="operation"/>
+            <payloadFactory media-type="json">
+                <format>{ "compra": $1 }</format>
+                <args>
+                    <arg evaluator="xml" expression="get-property('operation', 'compra')"/>
+                </args>
+            </payloadFactory>
+            <log level="full">
+                <property expression="json-eval($)" name="PAYLOAD_A_ENVIAR"/>
+            </log>
+            <call>
+                <endpoint>
+                    <http method="POST" uri-template="http://web:6000/solicitarFormaEnvio">
+                        <timeout>
+                            <duration>10000</duration>
+                            <responseAction>fault</responseAction>
+                        </timeout>
+                    </http>
+                </endpoint>
+            </call>
+            <log level="custom">
+                <property expression="json-eval($)" name="RESPUESTA_SERVICIO"/>
+            </log>
+            <property expression="json-eval($)" name="compra" scope="operation"/>
+            <payloadFactory media-type="json">
+                <format>{ "compra": $1 }</format>
+                <args>
+                    <arg evaluator="xml" expression="get-property('operation', 'compra')"/>
+                </args>
+            </payloadFactory>
+            <log level="full">
+                <property expression="json-eval($)" name="PAYLOAD_A_ENVIAR"/>
+            </log>
+            <call>
+                <endpoint>
+                    <http method="POST" uri-template="http://envios:7000/calcularCostoEnvio">
+                        <timeout>
+                            <duration>10000</duration>
+                            <responseAction>fault</responseAction>
+                        </timeout>
+                    </http>
+                </endpoint>
+            </call>
+            <log level="custom">
+                <property expression="json-eval($)" name="RESPUESTA_SERVICIO"/>
+            </log>
+            <property expression="json-eval($)" name="compra" scope="operation"/>
+            <payloadFactory media-type="json">
+                <format>{ "compra": $1 }</format>
+                <args>
+                    <arg evaluator="xml" expression="get-property('operation', 'compra')"/>
+                </args>
+            </payloadFactory>
+            <log level="full">
+                <property expression="json-eval($)" name="PAYLOAD_A_ENVIAR"/>
+            </log>
+            <call>
+                <endpoint>
+                    <http method="POST" uri-template="http://web:6000/solicitarFormaPago">
+                        <timeout>
+                            <duration>10000</duration>
+                            <responseAction>fault</responseAction>
+                        </timeout>
+                    </http>
+                </endpoint>
+            </call>
+            <log level="custom">
+                <property expression="json-eval($)" name="RESPUESTA_SERVICIO"/>
+            </log>
+            <property expression="json-eval($)" name="compra" scope="operation"/>
+            <payloadFactory media-type="json">
+                <format>{ "compra": $1 }</format>
+                <args>
+                    <arg evaluator="xml" expression="get-property('operation', 'compra')"/>
+                </args>
+            </payloadFactory>
+            <log level="full">
+                <property expression="json-eval($)" name="PAYLOAD_A_ENVIAR"/>
+            </log>
+            <call>
+                <endpoint>
+                    <http method="POST" uri-template="http://infracciones:8000/detectarInfracciones">
+                        <timeout>
+                            <duration>10000</duration>
+                            <responseAction>fault</responseAction>
+                        </timeout>
+                    </http>
+                </endpoint>
+            </call>
+            <property expression="json-eval($.hasPublicacion)" name="hasPublicacion" scope="operation"/>
+            <log level="custom">
+                <property expression="json-eval($)" name="RESPUESTA_SERVICIO"/>
+            </log>
+            <property expression="json-eval($)" name="compra" scope="operation"/>
+            <payloadFactory media-type="json">
+                <format>{ "compra": $1 }</format>
+                <args>
+                    <arg evaluator="xml" expression="get-property('operation', 'compra')"/>
+                </args>
+            </payloadFactory>
+            <log level="full">
+                <property expression="json-eval($)" name="PAYLOAD_A_ENVIAR"/>
+            </log>
+            <call>
+                <endpoint>
+                    <http method="POST" uri-template="http://publicaciones:10000/reservarProducto">
+                        <timeout>
+                            <duration>10000</duration>
+                            <responseAction>fault</responseAction>
+                        </timeout>
+                    </http>
+                </endpoint>
+            </call>
+            <log level="custom">
+                <property expression="json-eval($)" name="RESPUESTA_SERVICIO"/>
+            </log>
+            <property expression="json-eval($)" name="compra" scope="operation"/>
+            <payloadFactory media-type="json">
+                <format>{ "compra": $1 }</format>
+                <args>
+                    <arg evaluator="xml" expression="get-property('operation', 'compra')"/>
+                </args>
+            </payloadFactory>
+            <log level="full">
+                <property expression="json-eval($)" name="PAYLOAD_A_ENVIAR"/>
+            </log>
+            <call>
+                <endpoint>
+                    <http method="POST" uri-template="http://infracciones:8000/compraSincronizada">
+                        <timeout>
+                            <duration>10000</duration>
+                            <responseAction>fault</responseAction>
+                        </timeout>
+                    </http>
+                </endpoint>
+            </call>
+            <log level="custom">
+                <property expression="json-eval($)" name="RESPUESTA_SERVICIO"/>
+            </log>
+            <property expression="json-eval($)" name="compra" scope="operation"/>
+            <filter xpath="get-property('operation', 'hasPublicacion') = 'true'">
+                <then>
+                    <log level="custom">
+                        <property name="CANCELADA" value="Compra cancelada por infracción"/>
+                    </log>
+                    <payloadFactory media-type="json">
+                        <format>{ "compra": $1 }</format>
+                        <args>
+                            <arg evaluator="xml" expression="get-property('operation', 'compra')"/>
+                        </args>
+                    </payloadFactory>
+                    <log level="full">
+                        <property expression="json-eval($)" name="PAYLOAD_A_ENVIAR"/>
+                    </log>
+                    <call>
+                        <endpoint>
+                            <http method="POST" uri-template="http://web:6000/cancelarCompra"/>
+                        </endpoint>
+                    </call>
+                    <log level="full">
+                        <property expression="json-eval($)" name="RESPUESTA_SERVICIO"/>
+                    </log>
+                    <payloadFactory media-type="json">
+                        <format>{ "compra": $1 }</format>
+                        <args>
+                            <arg evaluator="xml" expression="get-property('operation', 'compra')"/>
+                        </args>
+                    </payloadFactory>
+                    <log level="full">
+                        <property expression="json-eval($)" name="PAYLOAD_A_ENVIAR"/>
+                    </log>
+                    <call>
+                        <endpoint>
+                            <http method="POST" uri-template="http://compras:6001/cancelarCompra"/>
+                        </endpoint>
+                    </call>
+                    <log level="full">
+                        <property expression="json-eval($)" name="RESPUESTA_SERVICIO"/>
+                    </log>
+                    <payloadFactory media-type="json">
+                        <format>{ "compra": $1 }</format>
+                        <args>
+                            <arg evaluator="xml" expression="get-property('operation', 'compra')"/>
+                        </args>
+                    </payloadFactory>
+                    <log level="full">
+                        <property expression="json-eval($)" name="PAYLOAD_A_ENVIAR"/>
+                    </log>
+                    <call>
+                        <endpoint>
+                            <http method="POST" uri-template="http://publicaciones:10000/cancelarReserva"/>
+                        </endpoint>
+                    </call>
+                    <log level="full">
+                        <property expression="json-eval($)" name="RESPUESTA_SERVICIO"/>
+                    </log>
+                    <payloadFactory media-type="json">
+                        <format>{ "compra": $1 }</format>
+                        <args>
+                            <arg evaluator="xml" expression="get-property('operation', 'compra')"/>
+                        </args>
+                    </payloadFactory>
+                    <log level="full">
+                        <property expression="json-eval($)" name="PAYLOAD_A_ENVIAR"/>
+                    </log>
+                    <call>
+                        <endpoint>
+                            <http method="POST" uri-template="http://infracciones:8000/cancelarCompra"/>
+                        </endpoint>
+                    </call>
+                    <log level="full">
+                        <property expression="json-eval($)" name="RESPUESTA_SERVICIO"/>
+                    </log>
+                    <payloadFactory media-type="json">
+                        <format>{ "compra": $1 }</format>
+                        <args>
+                            <arg evaluator="xml" expression="get-property('operation', 'compra')"/>
+                        </args>
+                    </payloadFactory>
+                    <log level="full">
+                        <property expression="json-eval($)" name="PAYLOAD_A_ENVIAR"/>
+                    </log>
+                    <call>
+                        <endpoint>
+                            <http method="POST" uri-template="http://pagos:9000/cancelarCompra"/>
+                        </endpoint>
+                    </call>
+                    <log level="full">
+                        <property expression="json-eval($)" name="RESPUESTA_SERVICIO"/>
+                    </log>
+                    <payloadFactory media-type="json">
+                        <format>{ "compra": $1 }</format>
+                        <args>
+                            <arg evaluator="xml" expression="get-property('operation', 'compra')"/>
+                        </args>
+                    </payloadFactory>
+                    <log level="full">
+                        <property expression="json-eval($)" name="PAYLOAD_A_ENVIAR"/>
+                    </log>
+                    <call>
+                        <endpoint>
+                            <http method="POST" uri-template="http://envios:7000/cancelarCompra"/>
+                        </endpoint>
+                    </call>
+                    <log level="full">
+                        <property expression="json-eval($)" name="RESPUESTA_SERVICIO"/>
+                    </log>
+                </then>
+                <else>
+                    <payloadFactory media-type="json">
+                        <format>{ "compra": $1 }</format>
+                        <args>
+                            <arg evaluator="xml" expression="get-property('operation', 'compra')"/>
+                        </args>
+                    </payloadFactory>
+                    <log level="full">
+                        <property expression="json-eval($)" name="PAYLOAD_A_ENVIAR"/>
+                    </log>
+                    <call>
+                        <endpoint>
+                            <http method="POST" uri-template="http://pagos:9000/pagarCompra">
+                                <timeout>
+                                    <duration>10000</duration>
+                                    <responseAction>fault</responseAction>
+                                </timeout>
+                            </http>
+                        </endpoint>
+                    </call>
+                    <property expression="json-eval($.resultadoPago)" name="resultadoPago" scope="operation"/>
+                    <log level="custom">
+                        <property expression="get-property('operation', 'resultadoPago')" name="DEBUG_RESULTADO_PAGO"/>
+                    </log>
+                    <log level="custom">
+                        <property expression="json-eval($)" name="RESPUESTA_SERVICIO"/>
+                    </log>
+                    <property expression="json-eval($)" name="compra" scope="operation"/>
+                    <filter xpath="get-property('operation', 'resultadoPago') = 'rechazado'">
+                        <then>
+                            <log level="custom">
+                                <property name="PAGO_RECHAZADO" value="El pago fue rechazado"/>
+                            </log>
+                            <payloadFactory media-type="json">
+                                <format>{ "compra": $1 }</format>
+                                <args>
+                                    <arg evaluator="xml" expression="get-property('operation', 'compra')"/>
+                                </args>
+                            </payloadFactory>
+                            <log level="full">
+                                <property expression="json-eval($)" name="PAYLOAD_A_ENVIAR"/>
+                            </log>
+                            <call>
+                                <endpoint>
+                                    <http method="POST" uri-template="http://web:6000/cancelarCompra"/>
+                                </endpoint>
+                            </call>
+                            <log level="full">
+                                <property expression="json-eval($)" name="RESPUESTA_SERVICIO"/>
+                            </log>
+                            <payloadFactory media-type="json">
+                                <format>{ "compra": $1 }</format>
+                                <args>
+                                    <arg evaluator="xml" expression="get-property('operation', 'compra')"/>
+                                </args>
+                            </payloadFactory>
+                            <log level="full">
+                                <property expression="json-eval($)" name="PAYLOAD_A_ENVIAR"/>
+                            </log>
+                            <call>
+                                <endpoint>
+                                    <http method="POST" uri-template="http://compras:6001/cancelarCompra"/>
+                                </endpoint>
+                            </call>
+                            <log level="full">
+                                <property expression="json-eval($)" name="RESPUESTA_SERVICIO"/>
+                            </log>
+                            <payloadFactory media-type="json">
+                                <format>{ "compra": $1 }</format>
+                                <args>
+                                    <arg evaluator="xml" expression="get-property('operation', 'compra')"/>
+                                </args>
+                            </payloadFactory>
+                            <log level="full">
+                                <property expression="json-eval($)" name="PAYLOAD_A_ENVIAR"/>
+                            </log>
+                            <call>
+                                <endpoint>
+                                    <http method="POST" uri-template="http://publicaciones:10000/cancelarReserva"/>
+                                </endpoint>
+                            </call>
+                            <log level="full">
+                                <property expression="json-eval($)" name="RESPUESTA_SERVICIO"/>
+                            </log>
+                            <payloadFactory media-type="json">
+                                <format>{ "compra": $1 }</format>
+                                <args>
+                                    <arg evaluator="xml" expression="get-property('operation', 'compra')"/>
+                                </args>
+                            </payloadFactory>
+                            <log level="full">
+                                <property expression="json-eval($)" name="PAYLOAD_A_ENVIAR"/>
+                            </log>
+                            <call>
+                                <endpoint>
+                                    <http method="POST" uri-template="http://envios:7000/cancelarCompra"/>
+                                </endpoint>
+                            </call>
+                            <log level="full">
+                                <property expression="json-eval($)" name="RESPUESTA_SERVICIO"/>
+                            </log>
+                        </then>
+                        <else>
+                            <log level="custom">
+                                <property name="COMPRA_EXITOSA" value="Compra finalizada con éxito"/>
+                            </log>
+                            <payloadFactory media-type="json">
+                                <format>{ "compra": $1 }</format>
+                                <args>
+                                    <arg evaluator="xml" expression="get-property('operation', 'compra')"/>
+                                </args>
+                            </payloadFactory>
+                            <log level="full">
+                                <property expression="json-eval($)" name="PAYLOAD_A_ENVIAR"/>
+                            </log>
+                            <call>
+                                <endpoint>
+                                    <http method="POST" uri-template="http://web:6000/compraFinalizada"/>
+                                </endpoint>
+                            </call>
+                            <log level="full">
+                                <property expression="json-eval($)" name="RESPUESTA_SERVICIO"/>
+                            </log>
+                            <payloadFactory media-type="json">
+                                <format>{ "compra": $1 }</format>
+                                <args>
+                                    <arg evaluator="xml" expression="get-property('operation', 'compra')"/>
+                                </args>
+                            </payloadFactory>
+                            <log level="full">
+                                <property expression="json-eval($)" name="PAYLOAD_A_ENVIAR"/>
+                            </log>
+                            <call>
+                                <endpoint>
+                                    <http method="POST" uri-template="http://compras:6001/compraFinalizada"/>
+                                </endpoint>
+                            </call>
+                            <log level="full">
+                                <property expression="json-eval($)" name="RESPUESTA_SERVICIO"/>
+                            </log>
+                            <payloadFactory media-type="json">
+                                <format>{ "compra": $1 }</format>
+                                <args>
+                                    <arg evaluator="xml" expression="get-property('operation', 'compra')"/>
+                                </args>
+                            </payloadFactory>
+                            <log level="full">
+                                <property expression="json-eval($)" name="PAYLOAD_A_ENVIAR"/>
+                            </log>
+                            <call>
+                                <endpoint>
+                                    <http method="POST" uri-template="http://publicaciones:10000/productoPagado"/>
+                                </endpoint>
+                            </call>
+                            <log level="full">
+                                <property expression="json-eval($)" name="RESPUESTA_SERVICIO"/>
+                            </log>
+                            <payloadFactory media-type="json">
+                                <format>{ "compra": $1 }</format>
+                                <args>
+                                    <arg evaluator="xml" expression="get-property('operation', 'compra')"/>
+                                </args>
+                            </payloadFactory>
+                            <log level="full">
+                                <property expression="json-eval($)" name="PAYLOAD_A_ENVIAR"/>
+                            </log>
+                            <call>
+                                <endpoint>
+                                    <http method="POST" uri-template="http://envios:7000/enviarProducto"/>
+                                </endpoint>
+                            </call>
+                            <log level="full">
+                                <property expression="json-eval($)" name="RESPUESTA_SERVICIO"/>
+                            </log>
+                        </else>
+                    </filter>
+                </else>
+            </filter>
+        </inSequence>
+        <outSequence>
+            <log level="custom">
+                <property name="FIN" value="Proceso de compra finalizado"/>
+            </log>
+            <send/>
+        </outSequence>
+        <faultSequence>
+            <log level="full">
+                <property name="ERROR" value="Se produjo un error en el flujo de compra"/>
+                <property expression="get-property('ERROR_MESSAGE')" name="MENSAJE_ERROR"/>
+            </log>
+            <payloadFactory media-type="json">
+                <format>{ "compra": $1 }</format>
+                <args>
+                    <arg evaluator="xml" expression="get-property('operation', 'compra')"/>
+                </args>
+            </payloadFactory>
+            <log level="full">
+                <property expression="json-eval($)" name="PAYLOAD_A_ENVIAR"/>
+            </log>
+            <call>
+                <endpoint>
+                    <http method="POST" uri-template="http://web:6000/cancelarCompra"/>
+                </endpoint>
+            </call>
+            <log level="full">
+                <property expression="json-eval($)" name="RESPUESTA_SERVICIO"/>
+            </log>
+            <payloadFactory media-type="json">
+                <format>{ "compra": $1 }</format>
+                <args>
+                    <arg evaluator="xml" expression="get-property('operation', 'compra')"/>
+                </args>
+            </payloadFactory>
+            <log level="full">
+                <property expression="json-eval($)" name="PAYLOAD_A_ENVIAR"/>
+            </log>
+            <call>
+                <endpoint>
+                    <http method="POST" uri-template="http://compras:6001/cancelarCompra"/>
+                </endpoint>
+            </call>
+            <log level="full">
+                <property expression="json-eval($)" name="RESPUESTA_SERVICIO"/>
+            </log>
+            <payloadFactory media-type="json">
+                <format>{ "compra": $1 }</format>
+                <args>
+                    <arg evaluator="xml" expression="get-property('operation', 'compra')"/>
+                </args>
+            </payloadFactory>
+            <log level="full">
+                <property expression="json-eval($)" name="PAYLOAD_A_ENVIAR"/>
+            </log>
+            <call>
+                <endpoint>
+                    <http method="POST" uri-template="http://publicaciones:10000/cancelarReserva"/>
+                </endpoint>
+            </call>
+            <log level="full">
+                <property expression="json-eval($)" name="RESPUESTA_SERVICIO"/>
+            </log>
+            <payloadFactory media-type="json">
+                <format>{ "compra": $1 }</format>
+                <args>
+                    <arg evaluator="xml" expression="get-property('operation', 'compra')"/>
+                </args>
+            </payloadFactory>
+            <log level="full">
+                <property expression="json-eval($)" name="PAYLOAD_A_ENVIAR"/>
+            </log>
+            <call>
+                <endpoint>
+                    <http method="POST" uri-template="http://envios:7000/cancelarCompra"/>
+                </endpoint>
+            </call>
+            <log level="full">
+                <property expression="json-eval($)" name="RESPUESTA_SERVICIO"/>
+            </log>
+            <payloadFactory media-type="json">
+                <format>{ "compra": $1 }</format>
+                <args>
+                    <arg evaluator="xml" expression="get-property('operation', 'compra')"/>
+                </args>
+            </payloadFactory>
+            <log level="full">
+                <property expression="json-eval($)" name="PAYLOAD_A_ENVIAR"/>
+            </log>
+            <call>
+                <endpoint>
+                    <http method="POST" uri-template="http://infracciones:8000/cancelarCompra"/>
+                </endpoint>
+            </call>
+            <log level="full">
+                <property expression="json-eval($)" name="RESPUESTA_SERVICIO"/>
+            </log>
+            <send/>
+        </faultSequence>
+    </target>
+    <description>Orquestador secuencial que mantiene el objeto 'compra' completo durante todo el flujo</description>
+</proxy>
+                                

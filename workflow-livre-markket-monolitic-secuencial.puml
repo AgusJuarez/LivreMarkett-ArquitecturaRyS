@@ -1,0 +1,36 @@
+@startuml workflow-livre-markket-monolitic-secuencial
+start
+:Seleccionar Producto;
+:Nuevo pedido;
+:Solicitar Forma de Entrega;
+:Seleccionar Forma de Entrega;
+:Forma de Entrega Seleccionada;
+if (Despacho?) then (Envío Currier)
+:Calcular Envío;
+else (retira)
+endif
+:Solicitar Medio de Pago;
+:Seleccionar Forma de Pago;
+:Forma de Pago Seleccionada;
+:Reservar Producto;
+:Detectar Infracciones;
+if (Existe Infracción) then (si)
+:Cancelar Pedido;
+:Informar Infracción;
+:Cancelar Reserva producto;
+end
+else (no)
+endif
+:Confirmar Compra;
+:Autorizar Pago;
+if (Pago) then (rechazado)
+:Cancelar Compra;
+:Cancelar Reserva producto;
+end
+else (autorizado)
+endif
+:Enviar Producto;
+:Compra confirmada y en proceso de envío;
+:Enviar producto;
+end 
+@enduml

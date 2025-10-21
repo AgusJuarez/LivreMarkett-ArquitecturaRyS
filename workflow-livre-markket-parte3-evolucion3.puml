@@ -1,0 +1,82 @@
+@startuml workflow-livre-markket-monolitic-secuencial
+|web|
+|#AntiqueWhite|compras|
+|#AntiqueWhite|infracciones|
+|#AntiqueWhite|envios|
+|#AntiqueWhite|pagos|
+|#AntiqueWhite|publicaciones|
+|web|
+start
+:Seleccionar Producto;
+|compras|
+:Nuevo pedido;
+fork
+:Solicitar Forma de Entrega;
+|web|
+:Seleccionar Forma de Entrega;
+|envios|
+:Forma de Entrega Seleccionada;
+if (Despacho?) then (Envío Currier)
+:Calcular Envío;
+else (retira)
+endif
+fork again
+|compras|
+:Solicitar Medio de Pago; 
+|web|
+:Seleccionar Forma de Pago;
+|compras|
+:Forma de Pago Seleccionada;
+fork again
+|publicaciones|
+:Reservar Producto; 
+fork again
+|infracciones|
+:Detectar Infracciones;
+|compras|
+end fork
+|infracciones|
+if (Existe Infracción) then (si)
+fork
+:Cancelar Pedido;
+fork again
+:Informar Infracción;
+fork again
+|publicaciones|
+:Cancelar Reserva producto;
+end
+|infracciones|
+end fork
+|web|
+:Infraccion informada;
+end
+|compras|
+else (no)
+endif
+|pagos|
+:Autorizar Pago;
+if (Pago) then (rechazado)
+fork
+:Cancelar Compra;
+fork again
+|publicaciones|
+:Cancelar Reserva producto;
+fork again
+|web|
+:Informar de Pago Rechazado;
+end
+|pagos|
+end fork
+|compras|
+else (autorizado)
+endif
+|envios|
+:Enviar Producto;
+|compras|
+:Compra confirmada y en proceso de envío;
+:Enviar producto;
+:Confirmar Compra;
+|web|
+:Informar sobre Compra confirmada;
+end 
+@enduml

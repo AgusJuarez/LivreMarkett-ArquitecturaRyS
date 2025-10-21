@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?><proxy xmlns="http://ws.apache.org/ns/synapse" name="cqrsRequest" startOnLoad="true" statistics="disable" trace="disable" transports="http,https">
+    <target>
+        <inSequence>
+            <log level="custom">
+                <property name="INFO" value="Iniciando proceso de peticion CQRS"/>
+            </log>
+            <property expression="json-eval($)" name="compras" scope="operation"/>
+            <payloadFactory media-type="json">
+                <format>{ "compras": $1 }</format>
+                <args>
+                    <arg evaluator="xml" expression="get-property('operation', 'compras')"/>
+                </args>
+            </payloadFactory>
+            <log level="full">
+                <property expression="json-eval($)" name="PAYLOAD_A_ENVIAR"/>
+            </log>
+            <call>
+                <endpoint>
+                    <http method="POST" uri-template="http://web:6000/cqrsRequest"/>
+                </endpoint>
+            </call>
+            <log level="custom">
+                <property expression="json-eval($)" name="RESPUESTA_SERVICIO"/>
+            </log>
+            <property expression="json-eval($)" name="compras" scope="operation"/>
+            <payloadFactory media-type="json">
+                <format>{ "compras": $1 }</format>
+                <args>
+                    <arg evaluator="xml" expression="get-property('operation', 'compras')"/>
+                </args>
+            </payloadFactory>
+            <log level="full">
+                <property expression="json-eval($)" name="PAYLOAD_A_ENVIAR"/>
+            </log>
+            <call>
+                <endpoint>
+                    <http method="POST" uri-template="http://compras:6001/cqrsRequest"/>
+                </endpoint>
+            </call>
+            <log level="custom">
+                <property expression="json-eval($)" name="RESPUESTA_SERVICIO"/>
+            </log>
+            <property expression="json-eval($)" name="compras" scope="operation"/>
+            <payloadFactory media-type="json">
+                <format>{ "compras": $1 }</format>
+                <args>
+                    <arg evaluator="xml" expression="get-property('operation', 'compras')"/>
+                </args>
+            </payloadFactory>
+            <log level="full">
+                <property expression="json-eval($)" name="PAYLOAD_A_ENVIAR"/>
+            </log>
+            <call>
+                <endpoint>
+                    <http method="POST" uri-template="http://envios:7000/cqrsRequest"/>
+                </endpoint>
+            </call>
+            <log level="custom">
+                <property expression="json-eval($)" name="RESPUESTA_SERVICIO"/>
+            </log>
+            <property expression="json-eval($)" name="compras" scope="operation"/>
+            <payloadFactory media-type="json">
+                <format>{ "compras": $1 }</format>
+                <args>
+                    <arg evaluator="xml" expression="get-property('operation', 'compras')"/>
+                </args>
+            </payloadFactory>
+            <log level="full">
+                <property expression="json-eval($)" name="PAYLOAD_A_ENVIAR"/>
+            </log>
+            <call>
+                <endpoint>
+                    <http method="POST" uri-template="http://infracciones:8000/cqrsRequest"/>
+                </endpoint>
+            </call>
+            <log level="custom">
+                <property expression="json-eval($)" name="RESPUESTA_SERVICIO"/>
+            </log>
+            <property expression="json-eval($)" name="compras" scope="operation"/>
+            <payloadFactory media-type="json">
+                <format>{ "compras": $1 }</format>
+                <args>
+                    <arg evaluator="xml" expression="get-property('operation', 'compras')"/>
+                </args>
+            </payloadFactory>
+            <log level="full">
+                <property expression="json-eval($)" name="PAYLOAD_A_ENVIAR"/>
+            </log>
+            <call>
+                <endpoint>
+                    <http method="POST" uri-template="http://pagos:9000/cqrsRequest"/>
+                </endpoint>
+            </call>
+            <log level="custom">
+                <property expression="json-eval($)" name="RESPUESTA_SERVICIO"/>
+            </log>
+            <property expression="json-eval($)" name="compras" scope="operation"/>
+            <payloadFactory media-type="json">
+                <format>{ "compras": $1 }</format>
+                <args>
+                    <arg evaluator="xml" expression="get-property('operation', 'compras')"/>
+                </args>
+            </payloadFactory>
+            <log level="full">
+                <property expression="json-eval($)" name="PAYLOAD_A_ENVIAR"/>
+            </log>
+            <call>
+                <endpoint>
+                    <http method="POST" uri-template="http://publicaciones:10000/cqrsRequest"/>
+                </endpoint>
+            </call>
+            <log level="custom">
+                <property expression="json-eval($)" name="RESPUESTA_SERVICIO"/>
+            </log>
+            <property expression="json-eval($)" name="compras" scope="operation"/>
+            <payloadFactory media-type="json">
+                <format>{ "compras": $1 }</format>
+                <args>
+                    <arg evaluator="xml" expression="get-property('operation', 'compras')"/>
+                </args>
+            </payloadFactory>
+            <log level="full">
+                <property expression="json-eval($)" name="PAYLOAD_A_ENVIAR"/>
+            </log>
+            <respond/>
+        </inSequence>
+    </target>
+    <description>Flujo CQRS secuencial</description>
+</proxy>
+                                

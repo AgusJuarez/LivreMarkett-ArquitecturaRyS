@@ -1,0 +1,179 @@
+networks:
+  app-network:
+    driver: bridge
+
+services:
+
+  compras:
+    build:
+      context: ./compras
+      dockerfile: Dockerfile
+    container_name: compras
+    working_dir: /home/compras
+    restart: always
+    networks:
+      - app-network
+    ports:
+      - "6001:6001"
+    stdin_open: true
+    tty: true
+    volumes:
+      - ./compras:/home/compras
+    #command: node simuladorComprasCC
+    command: sh
+
+
+  web:
+    build:
+      context: ./webImpl
+      dockerfile: Dockerfile
+    container_name: web
+    working_dir: /home/webImpl
+    restart: always
+    networks:
+      - app-network
+    ports:
+      - "6000:6000"
+    stdin_open: true
+    tty: true
+    volumes:
+      - ./webImpl:/home/webImpl
+    #command: node simuladorComprasCC
+    command: sh
+
+
+  envios:
+    build:
+      context: ./envios
+      dockerfile: Dockerfile
+    container_name: envios
+    working_dir: /home/envios
+    restart: always
+    networks:
+      - app-network
+    ports:
+      - "7000:7000"
+    stdin_open: true
+    tty: true
+    volumes:
+      - ./envios:/home/envios
+    #command: node simuladorComprasCC
+    command: sh
+
+  infracciones:
+    build:
+      context: ./infracciones
+      dockerfile: Dockerfile
+    container_name: infracciones
+    working_dir: /home/infracciones
+    restart: always
+    networks:
+      - app-network
+    ports:
+      - "8000:8000"
+    stdin_open: true
+    tty: true
+    volumes:
+      - ./infracciones:/home/infracciones
+    #command: node simuladorComprasCC
+    command: sh
+
+  pagos:
+    build:
+      context: ./pagos
+      dockerfile: Dockerfile
+    container_name: pagos
+    working_dir: /home/pagos
+    restart: always
+    networks:
+      - app-network
+    ports:
+      - "9000:9000"
+    stdin_open: true
+    tty: true
+    volumes:
+      - ./pagos:/home/pagos
+    #command: node simuladorComprasCC
+    command: sh
+
+  publicaciones:
+    build:
+      context: ./publicaciones
+      dockerfile: Dockerfile
+    container_name: publicaciones
+    working_dir: /home/publicaciones
+    restart: always
+    networks:
+      - app-network
+    ports:
+      - "10000:10000"
+    stdin_open: true
+    tty: true
+    volumes:
+      - ./publicaciones:/home/publicaciones
+    #command: node simuladorComprasCC
+    command: sh
+
+  cqrs:
+    build:
+      context: ./cqrs
+      dockerfile: Dockerfile
+    container_name: cqrs
+    working_dir: /home/cqrs
+    restart: always
+    networks:
+      - app-network
+    ports:
+      - "11000:11000"
+    stdin_open: true
+    tty: true
+    volumes:
+      - ./cqrs:/home/cqrs
+    #command: node simuladorComprasCC
+    command: sh
+    
+  wso2ei:
+    image: wso2/wso2ei-integrator:6.6.0
+    container_name: wso2ei
+    hostname: wso2ei
+    restart: always
+    networks:
+      - app-network
+    ports:
+      - "9443:9443"   # Puerto para acceder al Management Console (HTTPS)
+      - "8280:8280"   # Puerto para los servicios HTTP
+      - "8243:8243"   # Puerto para los servicios HTTPS
+    environment:
+      - JAVA_OPTS=-Djava.security.egd=file:/dev/./urandom
+      - USER=wso2user   # Usuario por defecto
+      - PASS=wso2pass   # Contraseña por defecto
+      - DB_HOST=postgresql  # Nombre del servicio PostgreSQL
+      - DB_NAME=wso2ei_db
+      - DB_USER=wso2user
+      - DB_PASSWORD=wso2pass
+    volumes:
+      - ./wso2carbon.jks:/home/wso2carbon/wso2ei-6.6.0/repository/resources/security/wso2carbon.jks
+      #- ./wso2ei/repository:/home/wso2carbon/wso2ei-6.6.0/repository
+      #- ./wso2ei/conf:/home/wso2carbon/wso2ei-6.6.0/conf  
+    depends_on:
+      - postgresql
+
+  postgresql:
+    image: postgres:latest
+    container_name: postgres
+    hostname: "postgres"
+    restart: always
+    networks:
+      - app-network
+    environment:
+      POSTGRES_DB: wso2mi_db
+      POSTGRES_USER: wso2user
+      POSTGRES_PASSWORD: wso2pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  rabbitmq_data:
+  postgres_data:

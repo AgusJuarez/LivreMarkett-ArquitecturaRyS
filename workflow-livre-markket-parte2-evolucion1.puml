@@ -1,0 +1,52 @@
+@startuml workflow-livre-markket-parte2-evolucion1
+start
+:Seleccionar Producto;
+:Nuevo pedido;
+fork
+   :Solicitar Forma de Entrega;
+    :Seleccionar Forma de Entrega;
+    :Forma de Entrega Seleccionada;
+    if (Despacho?) then (Envío Currier)
+    :Calcular Envío;
+    else (retira)
+    endif 
+fork again
+    :Solicitar Medio de Pago;
+    :Seleccionar Forma de Pago;
+    :Forma de Pago Seleccionada;
+fork again
+    :Reservar Producto;
+fork again
+    :Detectar Infracciones;
+    
+end fork
+if (Existe Infracción) then (si)
+    fork
+    :Cancelar Pedido;
+    end
+    fork again
+    :Informar Infracción;
+    end
+    fork again
+    :Cancelar Reserva producto;
+    end
+    end fork
+    else (no)
+    endif
+ :Confirmar Compra;
+    :Autorizar Pago;
+    if (Pago) then (rechazado)
+    fork
+    :Cancelar Compra;
+    end
+    fork again
+    :Cancelar Reserva producto;
+    end 
+    end fork
+    else (autorizado)
+    endif
+    :Enviar Producto;
+    :Compra confirmada y en proceso de envío;
+    :Enviar producto;
+end
+@enduml

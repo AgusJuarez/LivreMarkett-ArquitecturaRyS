@@ -1,0 +1,65 @@
+@startuml workflow-livre-markket-monolitic-secuencial
+|web|
+|#AntiqueWhite|compras|
+|#AntiqueWhite|infracciones|
+|#AntiqueWhite|envios|
+|#AntiqueWhite|pagos|
+|#AntiqueWhite|publicaciones|
+|web|
+start
+:Seleccionar Producto;
+|compras|
+:Nuevo pedido;
+:Solicitar Forma de Entrega;
+|web|
+:Seleccionar Forma de Entrega;
+|envios|
+:Forma de Entrega Seleccionada;
+if (Despacho?) then (Envío Currier)
+:Calcular Envío;
+else (retira)
+endif
+|compras|
+:Solicitar Medio de Pago; 
+|web|
+:Seleccionar Forma de Pago;
+|compras|
+:Forma de Pago Seleccionada;
+|publicaciones|
+:Reservar Producto; 
+|infracciones|
+:Detectar Infracciones;
+|infracciones|
+if (Existe Infracción) then (si)
+:Cancelar Pedido;
+:Informar Infracción;
+|publicaciones|
+:Cancelar Reserva producto;
+|web|
+:Infraccion informada;
+end
+|compras|
+else (no)
+endif
+|pagos|
+:Autorizar Pago;
+if (Pago) then (rechazado)
+:Cancelar Compra;
+|publicaciones|
+:Cancelar Reserva producto;
+|web|
+:Informar de Pago Rechazado;
+end
+|compras|
+else (autorizado)
+endif
+|envios|
+:Enviar Producto;
+|compras|
+:Compra confirmada y en proceso de envío;
+:Enviar producto;
+:Confirmar Compra;
+|web|
+:Informar sobre Compra confirmada;
+end 
+@enduml

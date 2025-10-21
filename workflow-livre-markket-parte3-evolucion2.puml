@@ -1,0 +1,66 @@
+@startuml workflow-livre-markket-monolitic-secuencial
+|web|
+|#AntiqueWhite|compras|
+|web|
+start
+:Seleccionar Producto;
+|compras|
+:Nuevo pedido;
+fork
+|compras|
+:Solicitar Forma de Entrega;
+|web|
+:Seleccionar Forma de Entrega;
+|compras|
+:Forma de Entrega Seleccionada;
+if (Despacho?) then (Envío Currier)
+:Calcular Envío;
+else (retira)
+endif
+fork again
+:Solicitar Medio de Pago; 
+|web|
+:Seleccionar Forma de Pago;
+|compras|
+:Forma de Pago Seleccionada;
+fork again
+:Reservar Producto; 
+fork again
+:Detectar Infracciones;
+end fork
+if (Existe Infracción) then (si)
+fork
+:Cancelar Pedido;
+fork again
+:Informar Infracción;
+fork again
+:Cancelar Reserva producto;
+end fork
+|web|
+:Infraccion informada;
+end
+|compras|
+else (no)
+endif
+
+:Autorizar Pago;
+if (Pago) then (rechazado)
+fork
+:Cancelar Compra;
+fork again
+:Cancelar Reserva producto;
+end fork
+|web|
+:Informar de Pago Rechazado;
+end
+|compras|
+else (autorizado)
+endif
+:Enviar Producto;
+:Compra confirmada y en proceso de envío;
+:Enviar producto;
+:Confirmar Compra;
+|web|
+:Informar sobre Compra confirmada;
+end 
+@enduml

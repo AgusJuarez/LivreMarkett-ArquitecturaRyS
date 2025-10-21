@@ -1,0 +1,14 @@
+{
+  "name": "startup",
+  "version": "1.0.0",
+  "description": "Scrips para crear infraestructura rabbit caso de estudio",
+  "main": "crear_colas.js",
+  "dependencies": {
+    "amqplib": "^0.10.4"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "demian",
+  "license": "ISC"
+}

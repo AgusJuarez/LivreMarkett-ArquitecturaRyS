@@ -1,0 +1,45 @@
+#!/bin/bash
+
+# Comandos
+case "$1" in
+build)
+    echo "Instalando..."
+    docker compose -f docker-compose.yml build
+    docker compose run --rm compras npm install
+    docker compose run --rm envios npm install
+    docker compose run --rm infracciones npm install
+    docker compose run --rm pagos npm install
+    docker compose run --rm publicaciones npm install
+    docker compose run --rm web npm install
+    docker compose run --rm startup-rabbit npm install
+    ;;
+up)
+    echo "Iniciando servidores.."
+    docker compose -f docker-compose.yml up -d
+    ;;
+down)
+    echo "Deteniendo servidores.."
+    docker compose -f docker-compose.yml down
+    ;;
+restart)
+    echo "Reiniciando servicio $2..."
+    docker compose -f docker-compose.yml restart $2
+    ;;
+restart-all)
+    echo "Reiniciando servidores.."
+    docker compose -f docker-compose.yml restart
+    ;;
+log)
+    docker compose -f docker-compose.yml logs -f $2
+    ;;
+logs)
+    docker compose -f docker-compose.yml logs -f
+    ;;
+sh)
+    echo "Conectando con $2"
+    docker exec -it $2 sh
+    ;;
+*)
+    echo "Opción inválida."
+    ;;
+esac

@@ -1,0 +1,52 @@
+@startuml workflow-SincronicoSecuencial-WebCompras
+|web|
+|#AntiqueWhite|compras|
+|web|
+start
+:Seleccionar Producto;
+|compras|
+:Nuevo pedido;
+:Solicitar Forma de Entrega;
+|web|
+:Seleccionar Forma de Entrega;
+|compras|
+:Forma de Entrega Seleccionada;
+if (Despacho?) then (Envío Currier)
+:Calcular Envío;
+else (retira)
+endif
+:Solicitar Medio de Pago;
+|web|
+:Seleccionar Forma de Pago;
+|compras|
+:Forma de Pago Seleccionada;
+:Reservar Producto;
+:Detectar Infracciones;
+if (Existe Infracción) then (si)
+:Cancelar Pedido;
+:Informar Infracción;
+:Cancelar Reserva producto;
+|web|
+:Informe de Infraccion Detectada;
+end
+|compras|
+else (no)
+endif
+:Confirmar Compra;
+:Autorizar Pago;
+if (Pago) then (rechazado)
+:Cancelar Compra;
+:Cancelar Reserva producto;
+|web|
+:Informe de Pago Rechazado;
+end
+|compras|
+else (autorizado)
+endif
+:Enviar Producto;
+:Compra confirmada y en proceso de envío;
+:Enviar producto;
+|web|
+:Compra confirmada;
+end 
+@enduml
